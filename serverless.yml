@@ -1,5 +1,5 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
-org: cristiandrc
+org: cristiandrc3
 # "app" enables Serverless Framework Dashboard features and sharing them with other Services.
 app: serverless-app
 # "service" is the name of this project. This will also be added to your AWS resource names.
@@ -11,11 +11,37 @@ provider:
 
 plugins:
   - serverless-offline
+  - serverless-dynamodb-local
 
 functions:
-  hello:
-    handler: handler.hello
+  get-users:
+    handler: handler.getUsers
     events:
       - http:
           method: GET
-          path: hello
+          path: users
+
+custom:
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      migration: true
+
+resources:
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: usersTable
+        AttributeDefinitions:
+          - AttributeName: pk
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pk
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
